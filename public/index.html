@@ -590,7 +590,7 @@
                 showResult();
             }, 2000);
         }
-        function showResult() {
+       function showResult() {
     formSection.classList.add('hidden');
     resultSection.classList.remove('hidden');
 
@@ -598,12 +598,15 @@
     namesEl.textContent = `${currentResult.name1} 💕 ${currentResult.name2}`;
     messageEl.textContent = currentResult.message;
 
-    // Save result to backend
-    fetch("http://localhost:3000/api/save", {
+    // Save result to backend (use relative URL, not localhost)
+    fetch("/api/save", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(currentResult)
-    }).catch(err => console.error("Save error:", err));
+    })
+    .then(res => res.json())
+    .then(data => console.log("✅ Saved:", data))
+    .catch(err => console.error("❌ Save error:", err));
 }
 
         function reset() {
