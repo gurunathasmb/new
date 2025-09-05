@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin - Love Calculator Results</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f9f0f5; color: #333; }
+    h1 { text-align: center; color: #e91e63; }
+    table { width: 90%; margin: 20px auto; border-collapse: collapse; background: #fff; }
+    th, td { padding: 12px; border: 1px solid #ddd; text-align: center; }
+    th { background: #e91e63; color: #fff; }
+    tr:nth-child(even) { background: #fce4ec; }
+  </style>
+</head>
+<body>
+  <h1>💖 Admin Dashboard - Saved Results</h1>
+  <table>
+    <thead>
+      <tr>
+        <th>Your Name</th>
+        <th>Crush Name</th>
+        <th>Percentage</th>
+        <th>Message</th>
+        <th>Date</th>
+      </tr>
+    </thead>
+    <tbody id="results-table"></tbody>
+  </table>
+
+  <script>
+    async function fetchResults() {
+      const res = await fetch("http://localhost:3000/api/results");
+      const data = await res.json();
+      const table = document.getElementById("results-table");
+      table.innerHTML = "";
+
+      data.forEach(r => {
+        const row = `<tr>
+          <td>${r.name1}</td>
+          <td>${r.name2}</td>
+          <td>${r.percentage}%</td>
+          <td>${r.message}</td>
+          <td>${new Date(r.createdAt).toLocaleString()}</td>
+        </tr>`;
+        table.innerHTML += row;
+      });
+    }
+    fetchResults();
+  </script>
+</body>
+</html>

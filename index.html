@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>💖 3D Love Calculator - Discover Your Love Compatibility</title>
+    <meta name="description" content="Calculate love compatibility with beautiful 3D animations. Discover the magic between two hearts with our unique love calculator featuring floating hearts and romantic effects.">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* Romantic color palette */
+            --background: hsl(340, 100%, 97%);
+            --foreground: hsl(340, 30%, 15%);
+            --card: hsl(350, 100%, 98%);
+            --primary: hsl(330, 65%, 55%);
+            --primary-glow: hsl(330, 80%, 70%);
+            --love-pink: hsl(330, 85%, 65%);
+            --love-purple: hsl(310, 70%, 60%);
+            --love-red: hsl(350, 85%, 60%);
+            --love-gold: hsl(45, 90%, 70%);
+            --input-bg: hsl(320, 15%, 92%);
+            --border: hsl(320, 20%, 85%);
+            
+            /* Gradients */
+            --gradient-love: linear-gradient(135deg, var(--love-pink), var(--love-purple));
+            --gradient-romantic: linear-gradient(45deg, var(--love-red), var(--love-pink));
+            --gradient-dreamy: linear-gradient(180deg, hsla(330, 85%, 65%, 0.1), hsla(310, 70%, 60%, 0.1));
+            
+            /* Shadows & Effects */
+            --shadow-love: 0 10px 40px hsla(330, 85%, 65%, 0.3);
+            --shadow-glow: 0 0 30px hsla(330, 85%, 65%, 0.5);
+            --shadow-heart: 0 5px 20px hsla(350, 85%, 60%, 0.4);
+            
+            /* Transitions */
+            --transition-love: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+            --bounce-love: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: var(--gradient-dreamy);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        #threejs-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        .container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .love-calculator {
+            background: hsla(350, 100%, 98%, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid hsla(330, 85%, 65%, 0.2);
+            border-radius: 1.5rem;
+            padding: 2rem;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: var(--shadow-love);
+            transition: var(--transition-love);
+        }
+
+        .love-calculator:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .title {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+        }
+
+        .title h1 {
+            font-size: 2rem;
+            font-weight: bold;
+            background: var(--gradient-love);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 0 0.5rem;
+        }
+
+        .heart-icon {
+            width: 2rem;
+            height: 2rem;
+            color: var(--love-red);
+            animation: pulse-love 2s ease-in-out infinite;
+        }
+
+        .subtitle {
+            color: hsl(340, 20%, 50%);
+            font-size: 0.9rem;
+        }
+
+        .form-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .input-group {
+            position: relative;
+        }
+
+        .input {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid hsla(330, 85%, 65%, 0.3);
+            border-radius: 0.75rem;
+            background: var(--input-bg);
+            font-size: 1.1rem;
+            text-align: center;
+            transition: var(--transition-love);
+            outline: none;
+        }
+
+        .input:focus {
+            border-color: var(--love-pink);
+            box-shadow: var(--shadow-glow);
+            transform: scale(1.02);
+        }
+
+        .heart-divider {
+            text-align: center;
+            font-size: 1.5rem;
+            animation: bounce-heart 2s infinite;
+        }
+
+        .calculate-btn {
+            background: var(--gradient-love);
+            color: white;
+            border: none;
+            padding: 1.2rem 2rem;
+            border-radius: 0.75rem;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: var(--transition-love);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .calculate-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .calculate-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .result-container {
+            text-align: center;
+            animation: scale-in 0.5s var(--bounce-love);
+        }
+
+        .percentage {
+            font-size: 4rem;
+            font-weight: bold;
+            background: var(--gradient-romantic);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: pulse-love 2s ease-in-out infinite;
+            margin-bottom: 1rem;
+        }
+
+        .names {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--love-purple);
+            margin-bottom: 1rem;
+        }
+
+        .message {
+            font-size: 1.1rem;
+            color: var(--foreground);
+            margin-bottom: 2rem;
+            line-height: 1.4;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition-love);
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid hsla(330, 85%, 65%, 0.3);
+            color: var(--love-pink);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--love-pink);
+            background: hsla(330, 85%, 65%, 0.1);
+        }
+
+        .btn-primary {
+            background: var(--gradient-romantic);
+            border: none;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            box-shadow: var(--shadow-heart);
+            transform: translateY(-1px);
+        }
+
+        .hearts-footer {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 2rem;
+        }
+
+        .footer-heart {
+            width: 1rem;
+            height: 1rem;
+            color: var(--love-pink);
+            animation: pulse-love 2s ease-in-out infinite;
+        }
+
+        .footer-heart:nth-child(2) { animation-delay: 0.2s; }
+        .footer-heart:nth-child(3) { animation-delay: 0.4s; }
+        .footer-heart:nth-child(4) { animation-delay: 0.6s; }
+        .footer-heart:nth-child(5) { animation-delay: 0.8s; }
+
+        .loading {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .sparkle {
+            animation: sparkle 1.5s ease-in-out infinite;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* Animations */
+        @keyframes pulse-love {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+        }
+
+        @keyframes bounce-heart {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+
+        @keyframes scale-in {
+            0% { transform: scale(0.9); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes sparkle {
+            0%, 100% { transform: scale(0) rotate(0deg); opacity: 0; }
+            50% { transform: scale(1) rotate(180deg); opacity: 1; }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .love-calculator {
+                padding: 1.5rem;
+            }
+            
+            .title h1 {
+                font-size: 1.5rem;
+            }
+            
+            .percentage {
+                font-size: 3rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="threejs-container"></div>
+    
+    <div class="container">
+        <div class="love-calculator">
+            <div class="header">
+                <div class="title">
+                    <svg class="heart-icon" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                    </svg>
+                    <h1>Love Calculator</h1>
+                    <svg class="heart-icon" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                    </svg>
+                </div>
+                <p class="subtitle">Discover the magic between two hearts! ✨</p>
+            </div>
+
+            <div id="form-section" class="form-container">
+                <div class="input-group">
+                    <input type="text" id="name1" class="input" placeholder="Enter your name 💕">
+                </div>
+                
+                <div class="heart-divider">💖</div>
+                
+                <div class="input-group">
+                    <input type="text" id="name2" class="input" placeholder="Enter their name 💖">
+                </div>
+
+                <button id="calculate-btn" class="calculate-btn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                    </svg>
+                    Calculate Our Love
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                    </svg>
+                </button>
+            </div>
+
+            <div id="result-section" class="result-container hidden">
+                <div id="percentage" class="percentage">0%</div>
+                <div id="names" class="names"></div>
+                <div id="message" class="message"></div>
+                
+                <div class="action-buttons">
+                    <button id="try-again-btn" class="btn btn-outline">Try Again</button>
+                    <button id="share-btn" class="btn btn-primary">Share Result</button>
+                </div>
+            </div>
+
+            <div class="hearts-footer">
+                <svg class="footer-heart" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                </svg>
+                <svg class="footer-heart" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                </svg>
+                <svg class="footer-heart" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                </svg>
+                <svg class="footer-heart" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                </svg>
+                <svg class="footer-heart" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <!-- Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r152/three.min.js"></script>
+    
+    <script>
+        // Love messages
+        const loveMessages = [
+            { min: 90, max: 100, message: "Perfect soulmates! 💕 You're destined to be together!" },
+            { min: 80, max: 89, message: "Amazing compatibility! 💖 Love is in the air!" },
+            { min: 70, max: 79, message: "Great potential! 💗 You two make a wonderful pair!" },
+            { min: 60, max: 69, message: "Good chemistry! 💓 There's definitely something special here!" },
+            { min: 50, max: 59, message: "Sweet connection! 💕 Love might be blooming!" },
+            { min: 0, max: 49, message: "Friendship vibes! 💝 Sometimes the best love starts as friendship!" }
+        ];
+
+        // Three.js Setup
+        let scene, camera, renderer, hearts = [], particles;
+
+        function initThreeJS() {
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+            
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setClearColor(0x000000, 0);
+            document.getElementById('threejs-container').appendChild(renderer.domElement);
+
+            // Lighting
+            const ambientLight = new THREE.AmbientLight(0x404040, 0.5);
+            scene.add(ambientLight);
+            
+            const pointLight1 = new THREE.PointLight(0xff69b4, 1, 100);
+            pointLight1.position.set(10, 10, 10);
+            scene.add(pointLight1);
+            
+            const pointLight2 = new THREE.PointLight(0x9c27b0, 0.5, 100);
+            pointLight2.position.set(-10, -10, -10);
+            scene.add(pointLight2);
+
+            // Create hearts
+            createHearts();
+            createParticles();
+            
+            camera.position.z = 15;
+            animate();
+        }
+
+        function createHeartShape() {
+            const heartShape = new THREE.Shape();
+            const x = 0, y = 0;
+            
+            heartShape.moveTo(x + 5, y + 5);
+            heartShape.bezierCurveTo(x + 5, y + 5, x + 4, y, x, y);
+            heartShape.bezierCurveTo(x - 6, y, x - 6, y + 7, x - 6, y + 7);
+            heartShape.bezierCurveTo(x - 6, y + 11, x - 3, y + 15.4, x + 5, y + 19);
+            heartShape.bezierCurveTo(x + 13, y + 15.4, x + 16, y + 11, x + 16, y + 7);
+            heartShape.bezierCurveTo(x + 16, y + 7, x + 16, y, x + 10, y);
+            heartShape.bezierCurveTo(x + 7, y, x + 5, y + 5, x + 5, y + 5);
+            
+            return new THREE.ShapeGeometry(heartShape);
+        }
+
+        function createHearts() {
+            const heartGeometry = createHeartShape();
+            const colors = [0xff1744, 0xe91e63, 0x9c27b0, 0x673ab7, 0xff6b9d];
+            
+            for (let i = 0; i < 25; i++) {
+                const material = new THREE.MeshStandardMaterial({
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    transparent: true,
+                    opacity: 0.8,
+                    emissive: colors[Math.floor(Math.random() * colors.length)],
+                    emissiveIntensity: 0.1
+                });
+                
+                const heart = new THREE.Mesh(heartGeometry, material);
+                
+                heart.position.set(
+                    (Math.random() - 0.5) * 25,
+                    (Math.random() - 0.5) * 25,
+                    (Math.random() - 0.5) * 25
+                );
+                
+                heart.scale.setScalar(Math.random() * 0.1 + 0.05);
+                heart.userData = {
+                    rotationSpeed: Math.random() * 0.02 + 0.005,
+                    floatSpeed: Math.random() * 0.01 + 0.005,
+                    originalY: heart.position.y
+                };
+                
+                scene.add(heart);
+                hearts.push(heart);
+            }
+        }
+
+        function createParticles() {
+            const particlesGeometry = new THREE.BufferGeometry();
+            const positions = new Float32Array(100 * 3);
+            
+            for (let i = 0; i < 100; i++) {
+                positions[i * 3] = (Math.random() - 0.5) * 30;
+                positions[i * 3 + 1] = (Math.random() - 0.5) * 30;
+                positions[i * 3 + 2] = (Math.random() - 0.5) * 30;
+            }
+            
+            particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            
+            const particlesMaterial = new THREE.PointsMaterial({
+                size: 0.02,
+                color: 0xff69b4,
+                transparent: true,
+                opacity: 0.6
+            });
+            
+            particles = new THREE.Points(particlesGeometry, particlesMaterial);
+            scene.add(particles);
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            // Animate hearts
+            hearts.forEach((heart, index) => {
+                heart.rotation.z += heart.userData.rotationSpeed;
+                heart.position.y += Math.sin(Date.now() * 0.001 + index) * heart.userData.floatSpeed;
+            });
+            
+            // Animate particles
+            if (particles) {
+                particles.rotation.y += 0.002;
+                particles.rotation.x += 0.001;
+            }
+            
+            renderer.render(scene, camera);
+        }
+
+        // Handle window resize
+        function handleResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        window.addEventListener('resize', handleResize);
+
+        // Love Calculator Logic
+        const name1Input = document.getElementById('name1');
+        const name2Input = document.getElementById('name2');
+        const calculateBtn = document.getElementById('calculate-btn');
+        const formSection = document.getElementById('form-section');
+        const resultSection = document.getElementById('result-section');
+        const percentageEl = document.getElementById('percentage');
+        const namesEl = document.getElementById('names');
+        const messageEl = document.getElementById('message');
+        const tryAgainBtn = document.getElementById('try-again-btn');
+        const shareBtn = document.getElementById('share-btn');
+
+        let currentResult = null;
+
+        function calculateLove() {
+            const name1 = name1Input.value.trim();
+            const name2 = name2Input.value.trim();
+            
+            if (!name1 || !name2) return;
+            
+            // Show loading state
+            calculateBtn.innerHTML = `
+                <svg class="sparkle" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                </svg>
+                Calculating Love Magic...
+                <svg class="sparkle" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                </svg>
+            `;
+            calculateBtn.disabled = true;
+            
+            setTimeout(() => {
+                // Generate consistent percentage based on names
+                const combined = (name1 + name2).toLowerCase();
+                let hash = 0;
+                for (let i = 0; i < combined.length; i++) {
+                    hash = ((hash << 5) - hash + combined.charCodeAt(i)) & 0xffffffff;
+                }
+                
+                const percentage = Math.abs(hash % 41) + 60; // 60-100%
+                const message = loveMessages.find(m => 
+                    percentage >= m.min && percentage <= m.max
+                )?.message || "Love is mysterious! 💫";
+                
+                currentResult = { name1, name2, percentage, message };
+                showResult();
+            }, 2000);
+        }
+        function showResult() {
+    formSection.classList.add('hidden');
+    resultSection.classList.remove('hidden');
+
+    percentageEl.textContent = `${currentResult.percentage}%`;
+    namesEl.textContent = `${currentResult.name1} 💕 ${currentResult.name2}`;
+    messageEl.textContent = currentResult.message;
+
+    // Save result to backend
+    fetch("http://localhost:3000/api/save", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(currentResult)
+    }).catch(err => console.error("Save error:", err));
+}
+
+        function reset() {
+            name1Input.value = '';
+            name2Input.value = '';
+            currentResult = null;
+            
+            resultSection.classList.add('hidden');
+            formSection.classList.remove('hidden');
+            
+            calculateBtn.innerHTML = `
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                </svg>
+                Calculate Our Love
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                </svg>
+            `;
+            calculateBtn.disabled = false;
+        }
+
+        function shareResult() {
+            if (!currentResult) return;
+            
+            const text = `${currentResult.name1} and ${currentResult.name2} are ${currentResult.percentage}% compatible! ${currentResult.message}`;
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: '💖 Love Calculator Result',
+                    text: text
+                }).catch(console.error);
+            } else if (navigator.clipboard) {
+                navigator.clipboard.writeText(text).then(() => {
+                    alert('Result copied to clipboard! 💕');
+                }).catch(() => {
+                    alert('Result: ' + text);
+                });
+            } else {
+                alert('Result: ' + text);
+            }
+        }
+
+        // Event listeners
+        calculateBtn.addEventListener('click', calculateLove);
+        tryAgainBtn.addEventListener('click', reset);
+        shareBtn.addEventListener('click', shareResult);
+
+        // Allow Enter key to calculate
+        [name1Input, name2Input].forEach(input => {
+            input.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' && !calculateBtn.disabled) {
+                    calculateLove();
+                }
+            });
+        });
+
+        // Enable/disable calculate button based on input
+        function updateCalculateButton() {
+            const hasValues = name1Input.value.trim() && name2Input.value.trim();
+            calculateBtn.disabled = !hasValues;
+        }
+
+        name1Input.addEventListener('input', updateCalculateButton);
+        name2Input.addEventListener('input', updateCalculateButton);
+
+        // Initialize
+        initThreeJS();
+        updateCalculateButton();
+    </script>
+</body>
+</html>
