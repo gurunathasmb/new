@@ -47,10 +47,9 @@ app.post("/api/save", async (req, res) => {
   }
 });
 
-// Admin results (basic auth)
+// Admin results (protected with secret key)
 app.get("/api/results", async (req, res) => {
   try {
-    // Simple authentication (replace with better login later)
     const adminKey = req.query.key;
     if (adminKey !== process.env.ADMIN_KEY) {
       return res.status(403).json({ success: false, error: "Unauthorized" });
@@ -65,20 +64,20 @@ app.get("/api/results", async (req, res) => {
 
 // ---------- Serve Frontend ----------
 
-// Serve static files
+// Serve static files (index.html, admin.html, css, js)
 app.use(express.static(path.join(__dirname, "public")));
 
-// Route for /admin
+// Route for /admin → serves admin.html
 app.get("/admin", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "admin.html"));
 });
 
-// Default to index.html for other routes
-app.get("/*", (req, res) => {
+// Catch-all fallback (Express v5 safe)
+app.get(/.*/, (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
-// Start server
+// ---------- Start Server ----------
 app.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
 });
