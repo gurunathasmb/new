@@ -74,11 +74,11 @@ app.get("/admin", (req, res) => {
 });
 
 // Default to index.html for other routes
-app.get("*", (req, res) => {
+app.get("/*", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
-// ---------- Start Server ----------
+// Start server
 app.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
 });
