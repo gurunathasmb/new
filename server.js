@@ -1,21 +1,24 @@
+// server.js
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const bodyParser = require("body-parser");
+const path = require("path");
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 // Middleware
 app.use(cors());
 app.use(bodyParser.json());
 
-// Connect MongoDB
-mongoose.connect("mongodb://localhost:27017/lovecalc", {
+// MongoDB Atlas Connection
+mongoose.connect(process.env.MONGODB_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true
-}).then(() => console.log("✅ MongoDB connected"))
-  .catch(err => console.log("❌ Error:", err));
+})
+.then(() => console.log("✅ MongoDB connected"))
+.catch(err => console.error("❌ MongoDB error:", err));
 
 // Schema
 const resultSchema = new mongoose.Schema({
@@ -27,21 +30,32 @@ const resultSchema = new mongoose.Schema({
 });
 const Result = mongoose.model("Result", resultSchema);
 
+// ---------- API Routes ----------
+
 // Save result
 app.post("/api/save", async (req, res) => {
   try {
     const { name1, name2, percentage, message } = req.body;
+    if (!name1 || !name2) {
+      return res.status(400).json({ success: false, error: "Names are required" });
+    }
     const newResult = new Result({ name1, name2, percentage, message });
     await newResult.save();
-    res.json({ success: true });
+    res.json({ success: true, data: newResult });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }
 });
 
-// Get all results (Admin page)
+// Admin results (basic auth)
 app.get("/api/results", async (req, res) => {
   try {
+    // Simple authentication (replace with better login later)
+    const adminKey = req.query.key;
+    if (adminKey !== process.env.ADMIN_KEY) {
+      return res.status(403).json({ success: false, error: "Unauthorized" });
+    }
+
     const results = await Result.find().sort({ createdAt: -1 });
     res.json(results);
   } catch (err) {
@@ -49,4 +63,22 @@ app.get("/api/results", async (req, res) => {
   }
 });
 
-app.listen(PORT, () => console.log(`🚀 Server running on http://localhost:${PORT}`));
+// ---------- Serve Frontend ----------
+
+// Serve static files
+app.use(express.static(path.join(__dirname, "public")));
+
+// Route for /admin
+app.get("/admin", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "admin.html"));
+});
+
+// Default to index.html for other routes
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
+});
+
+// ---------- Start Server ----------
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on http://localhost:${PORT}`);
+});
